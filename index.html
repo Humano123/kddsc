@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Webhook Falar</title>
+<style>
+    body {
+        background-color: black;
+    }
+    label {
+        color: aliceblue;
+    }
+    input {
+        background: linear-gradient(red, brown, black);
+    }
+    button {
+        color: rgb(255, 255, 255);
+        background: linear-gradient(red, brown, black);
+        cursor: pointer;
+    }
+    button:hover {
+        background: linear-gradient(rgb(168, 0, 0), rgb(139, 36, 36), rgb(0, 0, 0));
+    }
+    section {
+        background-color: rgb(114, 114, 114);
+        height: auto;
+        width: 40vh;
+        margin-right: auto;
+        margin-left: auto;
+        margin-top: 40vh;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+    }
+    h1 {
+        color: aliceblue;
+    }
+    .input{
+      background: linear-gradient(rgb(168, 0, 0), rgb(139, 36, 36), rgb(0, 0, 0));
+      color: aliceblue;
+    }
+    p{
+      font-size: small;
+      color: aliceblue;
+    }
+</style>
+</head>
+<body>
+    <section>
+      <p>exemplo do link:https://discordapp.com/api/webhooks/123.../ab2...</p>
+        <label for="webhook">Link do Webhook:</label><br>
+        <input class="input" type="text" id="webhook" name="webhook">
+        <br><br>
+        <label for="message">Mensagem:</label><br>
+        <input class="input" type="text" id="message" name="message">
+        <br><br>
+        <button onclick="startTalking()">Começar</button>
+        <button onclick="stopTalking()">Terminar</button>
+        <h1 id="waitMessage" style="display: none;">Por favor, espere...</h1>
+    </section>
+    
+    <script>
+        var intervalId; // Variável para armazenar o ID do intervalo
+        var firstMessageSent = false; // Variável para rastrear se a primeira mensagem foi enviada
+
+        function startTalking() {
+            var webhookURL = document.getElementById("webhook").value;
+            var messageToSend = document.getElementById("message").value;
+
+            if (webhookURL === "") {
+                alert("Por favor, insira o link do webhook.");
+                return;
+            }
+            if (messageToSend === "") {
+                alert("Por favor, insira uma mensagem para enviar.");
+                return;
+            }
+
+            // Mostrar a mensagem de espera
+            document.getElementById("waitMessage").style.display = "block";
+            firstMessageSent = false; // Resetar a variável ao iniciar novamente
+
+            function sendWebhook() {
+                fetch(webhookURL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ content: messageToSend })
+                }).then(response => {
+                    if (!firstMessageSent) {
+                        // Esconder a mensagem de espera e mostrar o alert uma vez
+                        document.getElementById("waitMessage").style.display = "none";
+                        alert("trava enviada com sucesso!");
+                        firstMessageSent = true;
+                    }
+                    console.log("trava enviada com sucesso:", messageToSend);
+                }).catch(error => {
+                    console.error("Erro ao enviar trava:", error);
+                });
+            }
+
+            // Inicia o envio das mensagens repetidamente sem delay
+            intervalId = setInterval(sendWebhook, 1);
+        }
+
+        function stopTalking() {
+            clearInterval(intervalId); // Interrompe o intervalo com base no ID armazenado
+            console.log("Envio de trava interrompido.");
+        }
+    </script>
+</body>
+</html>
